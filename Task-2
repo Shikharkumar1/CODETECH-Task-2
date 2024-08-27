@@ -1,0 +1,105 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+import warnings
+warnings.filterwarnings('ignore')
+
+x=pd.read_csv("/content/Mall_Customers.csv")
+
+x.head()
+Descriptive Analysis
+
+x.describe()
+
+sns.distplot(x['Annual Income (k$)'])
+
+x.columns
+x=x.rename(columns={'Genre': 'Gender'})
+
+#density plot
+columns = ['Age', 'Annual Income (k$)','Spending Score (1-100)']
+for i in columns:
+  plt.figure()
+  sns.distplot(x[i])
+
+columns = ['Age', 'Annual Income (k$)','Spending Score (1-100)']
+for i in columns:
+  plt.figure()
+  sns.boxplot(data=x , palette='pastel',x='Gender' , y=x[i])
+
+x['Gender'].value_counts(normalize=True)
+
+Dual Variable Analysis
+sns.scatterplot(data=x, x='Annual Income (k$)',y='Spending Score (1-100)')
+
+#x=x.drop('CustomerID',axis=1)
+sns.pairplot(x,hue='Gender')
+
+x.groupby(['Gender']).mean()
+x.dtypes
+
+Clustering
+
+clustering1 =KMeans(n_clusters=3)
+clustering1.fit(x[['Annual Income (k$)']])
+
+clustering1.labels_
+
+x['Income Cluster']=clustering1.labels_
+x.head()
+
+x['Income Cluster'].value_counts()
+
+clustering1.inertia_
+
+inertia_score=[]
+for i in range(1,11):
+  kmeans=KMeans(n_clusters=i)
+  kmeans.fit(x[['Annual Income (k$)']])
+  inertia_score.append(kmeans.inertia_)
+
+
+inertia_score
+
+plt.plot(range(1,11),inertia_score)
+x.columns
+
+Dual variable Clustering
+
+clustering2 =KMeans(n_clusters=5)
+clustering2.fit(x[['Annual Income (k$)','Spending Score (1-100)']])
+x['Spending and Income Cluster']=clustering2.labels_
+x.head()
+
+
+inertia_score2=[]
+for i in range(1,11):
+  kmeans2=KMeans(n_clusters=i)
+  kmeans2.fit(x[['Annual Income (k$)','Spending Score (1-100)']])
+  inertia_score2.append(kmeans2.inertia_)
+plt.plot(range(1,11),inertia_score2)
+
+center=pd.DataFrame(clustering2.cluster_centers_)
+center.columns=['Annual Income (k$)','Spending Score (1-100)']
+center
+
+plt.figure(figsize=(10,6))
+plt.scatter(x=center['Annual Income (k$)'],y=center['Spending Score (1-100)'],s=100,c='black',marker='*')
+
+sns.scatterplot(data=x,x='Annual Income (k$)',y='Spending Score (1-100)',hue='Spending and Income Cluster',palette='tab10')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
